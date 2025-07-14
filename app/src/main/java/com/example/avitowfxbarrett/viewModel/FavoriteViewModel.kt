@@ -2,7 +2,7 @@ package com.example.avitowfxbarrett.viewModel
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
-import com.example.avitowfxbarrett.data.ProductModels
+import com.example.avitowfxbarrett.data.model.ProductModels
 import kotlin.collections.set
 
 class FavoriteViewModel : ViewModel(){

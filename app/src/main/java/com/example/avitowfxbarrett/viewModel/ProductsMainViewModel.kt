@@ -3,10 +3,9 @@ package com.example.avitowfxbarrett.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.avitowfxbarrett.data.ProductModels
+import com.example.avitowfxbarrett.data.model.ProductModels
 
 class ProductsMainViewModel(): ViewModel(){
     var textSearch by mutableStateOf("")

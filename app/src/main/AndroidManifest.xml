@@ -16,39 +16,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AvitoWfxbarrett"
         tools:targetApi="31">
-        <activity
-            android:name=".DetailProductActivity"
-            android:exported="false"
-            android:label="@string/title_activity_detail_product"
-            android:theme="@style/Theme.AvitoWfxbarrett" />
-        <activity
-            android:name=".ProductsActivity"
-            android:exported="true"
-            android:label="@string/title_activity_products"
-            android:theme="@style/Theme.AvitoWfxbarrett">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ForgotPasswordActivity"
-            android:exported="false"
-            android:label="@string/title_activity_forgot_password"
-            android:theme="@style/Theme.AvitoWfxbarrett" />
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AvitoWfxbarrett">
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+             <intent-filter>
+             <action android:name="android.intent.action.MAIN" />
+             <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
         </activity>
     </application>
 

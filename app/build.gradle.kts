@@ -40,14 +40,26 @@ android {
 }
 
 dependencies {
+    //retrofit http web-api
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation ("androidx.security:security-crypto:1.1.0-alpha03")
+    //viewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
+    //image coil
     implementation ("io.coil-kt:coil-compose:2.2.2")
+    //gmail
     implementation("com.sun.mail:android-mail:1.6.0")
     implementation("com.sun.mail:android-activation:1.6.0")
+    //koin
+    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+    //bottomNavigation
+    implementation ("androidx.compose.material:material:1.8.3")
+    //GSON
+    implementation("com.google.code.gson:gson:2.8.9")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
