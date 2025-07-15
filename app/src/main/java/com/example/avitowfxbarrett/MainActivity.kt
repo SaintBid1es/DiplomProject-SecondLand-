@@ -66,7 +66,9 @@ import com.example.avitowfxbarrett.presentaion.listItem.CategoryListItem
 import com.example.avitowfxbarrett.presentaion.listItem.ProductListItem
 import com.example.avitowfxbarrett.presentaion.pages.AdvertisementsPage
 import com.example.avitowfxbarrett.presentaion.pages.DetailProductPage
+import com.example.avitowfxbarrett.presentaion.pages.DontHaveAccountPage
 import com.example.avitowfxbarrett.presentaion.pages.FavoritePage
+import com.example.avitowfxbarrett.presentaion.pages.ForgotPass
 import com.example.avitowfxbarrett.presentaion.pages.MessagePage
 import com.example.avitowfxbarrett.presentaion.pages.ProfilePage
 import com.example.avitowfxbarrett.ui.theme.AvitoWfxbarrettTheme
@@ -128,7 +130,7 @@ class MainActivity : ComponentActivity() {
                                         onClick = {
                                             navController.navigate(item.route) {
                                                 popUpTo(navController.graph.findStartDestination().id) {
-                                                    saveState = false
+                                                    saveState = true
                                                 }
                                                 launchSingleTop = true
                                                 restoreState = true
@@ -173,6 +175,15 @@ class MainActivity : ComponentActivity() {
                             FavoritePage()
                             showBottomBar = true
                         }
+                        composable(Routes.ForgotPassword.route) {
+                            ForgotPass(navigation = navController)
+                            showBottomBar = false
+                        }
+                        composable(Routes.DontHaveAccount.route) {
+                            DontHaveAccountPage(navController)
+                            showBottomBar = false
+                        }
+
                     }
                 }
             }
@@ -232,7 +243,7 @@ fun Login(navController: NavHostController) {
                 text = "Don't have account?",
                 color = Purple40,
                 modifier = Modifier.clickable(onClick = {
-
+                    navController.navigate(Routes.DontHaveAccount.route)
                 })
 
             )
@@ -240,7 +251,9 @@ fun Login(navController: NavHostController) {
                 text = "Forgot password?",
                 color = Purple40,
                 modifier = Modifier.clickable(onClick = {
-
+                    navController.navigate(Routes.ForgotPassword.route){
+                        popUpTo(Routes.Login.route)
+                    }
                 })
 
             )

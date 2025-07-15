@@ -25,11 +25,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.avitowfxbarrett.Routes
 import com.example.avitowfxbarrett.ui.theme.AvitoWfxbarrettTheme
 
 
 @Composable
-fun ForgotPass( modifier: Modifier = Modifier) {
+fun ForgotPass( modifier: Modifier = Modifier,navigation: NavHostController) {
     var email by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
@@ -44,7 +47,11 @@ fun ForgotPass( modifier: Modifier = Modifier) {
 
         ) {
             IconButton(
-                onClick = {},
+                onClick = {
+                    navigation.navigate(Routes.Login.route){
+                        popUpTo(Routes.ForgotPassword.route)
+                    }
+                },
                 modifier = Modifier.padding()
             ) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "return on Main window")
@@ -64,7 +71,11 @@ fun ForgotPass( modifier: Modifier = Modifier) {
             }
         }
         Button(
-            onClick = {},
+            onClick = {
+                navigation.navigate(Routes.Login.route){
+                    popUpTo(Routes.ForgotPassword.route)
+                }
+            },
             modifier = Modifier.width(200.dp)
         ) {
             Text("Confirm")
@@ -77,6 +88,7 @@ fun ForgotPass( modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview2() {
     AvitoWfxbarrettTheme {
-        ForgotPass()
+        val navController = rememberNavController()
+        ForgotPass(navigation = navController)
     }
 }

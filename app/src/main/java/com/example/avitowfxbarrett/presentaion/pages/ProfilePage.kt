@@ -72,7 +72,11 @@ fun ProfilePage(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = {
+                    navController.navigate(Routes.Login.route){
+                        popUpTo(Routes.Profile.route)
+                    }
+                }) {
                     Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Наверх")
                 }
                 Row(

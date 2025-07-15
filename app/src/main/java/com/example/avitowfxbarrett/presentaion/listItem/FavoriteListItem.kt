@@ -38,9 +38,11 @@ import com.example.avitowfxbarrett.data.model.ProductProvider
 import com.example.avitowfxbarrett.viewModel.FavoriteViewModel
 
 @Composable
-fun FavoriteListItem(product: ProductModels) {
+fun FavoriteListItem(product: ProductModels,
+                      viewModel: FavoriteViewModel,
+                     changeFavorite:(ProductModels)->Unit) {
     // val productId = favorite.productId
-    val viewModel: FavoriteViewModel = viewModel()
+
     val isFavorite by remember(product.id) {
         derivedStateOf {
             viewModel.isFavorite(product)
@@ -79,9 +81,9 @@ fun FavoriteListItem(product: ProductModels) {
                 ) {
                     Text(text = "${product.cost} $")
 
-                        IconButton(onClick = {
-                            viewModel.changeFavorite(product)
-                        }) {
+                        IconButton(onClick =
+                            { changeFavorite(product) }
+                        ) {
                             if (isFavorite)
                             Icon(
                                 Icons.Filled.Favorite,
@@ -112,12 +114,12 @@ fun FavoriteListItem(product: ProductModels) {
     }
 }
 
-
-@Composable
-@Preview
-fun FavoriteListItemPreview() {
-    MaterialTheme {
-        // FavoriteListItem(FavoriteProvider.favorite)
-        FavoriteListItem(ProductProvider.product)
-    }
-}
+//
+//@Composable
+//@Preview
+//fun FavoriteListItemPreview() {
+//    MaterialTheme {
+//        // FavoriteListItem(FavoriteProvider.favorite)
+//        FavoriteListItem(ProductProvider.product)
+//    }
+//}
