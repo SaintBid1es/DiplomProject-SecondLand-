@@ -108,7 +108,7 @@ fun Success(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 120.dp),
+                ,
             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(26.dp)
 

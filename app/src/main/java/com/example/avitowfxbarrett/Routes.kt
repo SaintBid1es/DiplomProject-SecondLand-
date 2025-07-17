@@ -13,6 +13,15 @@ sealed class Routes(val route: String) {
     object Message : Routes("message")
     object ForgotPassword : Routes("forgotPassword")
     object DontHaveAccount : Routes("dontHaveAccount")
+    object AddProduct : Routes("AddProduct")
+    object AdType : Routes("AdType")
+    object IndicateNameProduct : Routes("IndicateNameProduct")
+    object InputDescriptionProduct : Routes("InputDescriptionProduct")
+    object SelectAddresForProduct : Routes("SelectAddresForProduct")
+    object SelectCategory : Routes("SelectCategory")
+    object SelectStateProduct : Routes("SelectStateProduct")
+    object TermsOfPage : Routes("TermsOfPage")
+
 
     object ProductDetail : Routes("product_detail/{productId}") {
         fun createRoute(productId: String) = "product_detail/$productId"

@@ -4,12 +4,16 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -21,8 +25,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
@@ -56,6 +62,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.avitowfxbarrett.data.model.BottomNavItem
@@ -64,19 +71,30 @@ import com.example.avitowfxbarrett.data.model.ProductModels
 import com.example.avitowfxbarrett.data.model.ProductProvider
 import com.example.avitowfxbarrett.presentaion.listItem.CategoryListItem
 import com.example.avitowfxbarrett.presentaion.listItem.ProductListItem
+import com.example.avitowfxbarrett.presentaion.pages.AdTypePage
+import com.example.avitowfxbarrett.presentaion.pages.AddProductPage
 import com.example.avitowfxbarrett.presentaion.pages.AdvertisementsPage
 import com.example.avitowfxbarrett.presentaion.pages.DetailProductPage
 import com.example.avitowfxbarrett.presentaion.pages.DontHaveAccountPage
 import com.example.avitowfxbarrett.presentaion.pages.FavoritePage
 import com.example.avitowfxbarrett.presentaion.pages.ForgotPass
+import com.example.avitowfxbarrett.presentaion.pages.IndicateNameProductPage
+import com.example.avitowfxbarrett.presentaion.pages.InputDescriptionProductPage
 import com.example.avitowfxbarrett.presentaion.pages.MessagePage
 import com.example.avitowfxbarrett.presentaion.pages.ProfilePage
+import com.example.avitowfxbarrett.presentaion.pages.SelectAddresForProductPage
+import com.example.avitowfxbarrett.presentaion.pages.SelectCategoryPage
+import com.example.avitowfxbarrett.presentaion.pages.SelectStateProductPage
+import com.example.avitowfxbarrett.presentaion.pages.TermsOfPage
+import com.example.avitowfxbarrett.presentaion.pages.TermsOfPagePreview
 import com.example.avitowfxbarrett.ui.theme.AvitoWfxbarrettTheme
 import com.example.avitowfxbarrett.ui.theme.Purple40
 import com.example.avitowfxbarrett.viewModel.MainViewModel
 import com.example.avitowfxbarrett.viewModel.ProductsMainViewModel
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,8 +103,28 @@ class MainActivity : ComponentActivity() {
             AvitoWfxbarrettTheme {
                 val navController = rememberNavController()
                 var showBottomBar by remember { mutableStateOf(false) }
+                var pageIsAdvertisment by remember { mutableStateOf(false) }
                 Scaffold(
                     bottomBar = {
+                            if (pageIsAdvertisment) {
+                                FloatingActionButton(
+                                    onClick = {
+                                     navController.navigate(Routes.AddProduct.route)
+                                    },
+                                    modifier = Modifier
+                                        .offset(y = (-72).dp)
+                                        .fillMaxWidth()
+                                        .padding(10.dp)
+                                        , backgroundColor =  (Color.Black)
+                                ) {
+                                    Text(
+                                        "Разместить объявление",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
+                            }
                         if (showBottomBar) {
                             BottomNavigation(
                                 backgroundColor = Color.White
@@ -95,6 +133,7 @@ class MainActivity : ComponentActivity() {
                                 val currentDestination = navBackStackEntry?.destination
 
                                 val bottomNavItems = listOf(
+
                                     BottomNavItem(
                                         name = "Home",
                                         route = Routes.Home.route,
@@ -141,23 +180,28 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+
                 ) { innerPadding ->
                     NavHost(navController, startDestination = Routes.Login.route, Modifier.padding(innerPadding)) {
                         composable(Routes.Home.route) {
                             MainProducts(navController)
                             showBottomBar = true
+                            pageIsAdvertisment = false
                         }
                         composable(Routes.Advertisment.route) {
                             AdvertisementsPage()
                             showBottomBar = true
+                            pageIsAdvertisment = true
                         }
                         composable(Routes.Message.route) {
                             MessagePage()
                             showBottomBar = true
+                            pageIsAdvertisment = false
                         }
                         composable(Routes.Login.route) {
                             Login(navController)
                             showBottomBar = false
+                            pageIsAdvertisment = false
                         }
                         composable(
                             route = Routes.ProductDetailJSON.route,
@@ -170,22 +214,74 @@ class MainActivity : ComponentActivity() {
                         composable(Routes.Profile.route) {
                             ProfilePage(navController)
                             showBottomBar = true
+                            pageIsAdvertisment = false
                         }
                         composable(Routes.Favorites.route) {
                             FavoritePage()
                             showBottomBar = true
+                            pageIsAdvertisment = false
                         }
                         composable(Routes.ForgotPassword.route) {
                             ForgotPass(navigation = navController)
                             showBottomBar = false
+                            pageIsAdvertisment = false
                         }
                         composable(Routes.DontHaveAccount.route) {
                             DontHaveAccountPage(navController)
                             showBottomBar = false
+                            pageIsAdvertisment = false
                         }
+                        navigation(
+                            startDestination = Routes.AddProduct.route,
+                            route = "create_product_flow"
+                        ) {
+                            composable(Routes.AddProduct.route) { AddProductPage(navController)
+                                showBottomBar = false
+                            pageIsAdvertisment = false
+                            }
+
+                            composable(Routes.IndicateNameProduct.route) { IndicateNameProductPage(navController)
+                                showBottomBar = false
+                                pageIsAdvertisment = false
+                            }
+                            composable(Routes.TermsOfPage.route) {
+                                TermsOfPage(navController)
+                                showBottomBar = false
+                                pageIsAdvertisment = false
+                            }
+                            composable(Routes.AdType.route) {
+                            AdTypePage(navController)
+                            showBottomBar = false
+                            pageIsAdvertisment = false
+                        }
+
+                            composable(Routes.InputDescriptionProduct.route) {
+                                InputDescriptionProductPage(navController)
+                                showBottomBar = false
+                                pageIsAdvertisment = false
+                            }
+                            composable(Routes.SelectAddresForProduct.route) {
+                                SelectAddresForProductPage(navController)
+                                showBottomBar = false
+                                pageIsAdvertisment = false
+                            }
+                            composable(Routes.SelectCategory.route) {
+                                SelectCategoryPage(navController)
+                                showBottomBar = false
+                                pageIsAdvertisment = false
+                            }
+                            composable(Routes.SelectStateProduct.route) {
+                                SelectStateProductPage(navController)
+                                showBottomBar = false
+                                pageIsAdvertisment = false
+                            }
+
+                        }
+
 
                     }
                 }
+
             }
         }
     }
@@ -323,8 +419,8 @@ fun MainProducts(navController: NavHostController) {
         )
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .padding(bottom = 120.dp)
+
+
         ) {
             items(
                 items = filteredItems,
