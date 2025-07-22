@@ -5,6 +5,8 @@ import com.example.avitowfxbarrett.data.model.Attachment
 import com.example.avitowfxbarrett.data.model.Category
 import com.example.avitowfxbarrett.data.model.Chat
 import com.example.avitowfxbarrett.data.model.Favorite
+import com.example.avitowfxbarrett.data.model.LoginRequest
+import com.example.avitowfxbarrett.data.model.LoginResponse
 import com.example.avitowfxbarrett.data.model.Message
 import com.example.avitowfxbarrett.data.model.Notification
 import com.example.avitowfxbarrett.data.model.PriceHistory
@@ -61,6 +63,9 @@ interface ApiService {
 
     @POST("Users")
     suspend fun insertUser(@Body user: User): User
+
+    @POST("Users/login")
+    suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
 
     @PUT("Users/{id}")
     suspend fun updateUser(@Path("id") id: Int, @Body user: User): Response<Unit>

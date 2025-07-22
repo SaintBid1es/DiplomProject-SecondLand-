@@ -1,7 +1,10 @@
 package com.example.avitowfxbarrett
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -41,9 +45,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +61,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -65,10 +72,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.avitowfxbarrett.data.API.RetrofitClient
 import com.example.avitowfxbarrett.data.model.BottomNavItem
 import com.example.avitowfxbarrett.data.model.CategoryProvider
 import com.example.avitowfxbarrett.data.model.ProductModels
 import com.example.avitowfxbarrett.data.model.ProductProvider
+import com.example.avitowfxbarrett.data.model.User
 import com.example.avitowfxbarrett.presentaion.listItem.CategoryListItem
 import com.example.avitowfxbarrett.presentaion.listItem.ProductListItem
 import com.example.avitowfxbarrett.presentaion.pages.AdTypePage
@@ -76,10 +85,13 @@ import com.example.avitowfxbarrett.presentaion.pages.AddProductPage
 import com.example.avitowfxbarrett.presentaion.pages.AdvertisementsPage
 import com.example.avitowfxbarrett.presentaion.pages.DetailProductPage
 import com.example.avitowfxbarrett.presentaion.pages.DontHaveAccountPage
+import com.example.avitowfxbarrett.presentaion.pages.ErrorView
 import com.example.avitowfxbarrett.presentaion.pages.FavoritePage
 import com.example.avitowfxbarrett.presentaion.pages.ForgotPass
 import com.example.avitowfxbarrett.presentaion.pages.IndicateNameProductPage
 import com.example.avitowfxbarrett.presentaion.pages.InputDescriptionProductPage
+import com.example.avitowfxbarrett.presentaion.pages.LoadingView
+import com.example.avitowfxbarrett.presentaion.pages.MainProducts
 import com.example.avitowfxbarrett.presentaion.pages.MessagePage
 import com.example.avitowfxbarrett.presentaion.pages.ProfilePage
 import com.example.avitowfxbarrett.presentaion.pages.SelectAddresForProductPage
@@ -87,12 +99,18 @@ import com.example.avitowfxbarrett.presentaion.pages.SelectCategoryPage
 import com.example.avitowfxbarrett.presentaion.pages.SelectStateProductPage
 import com.example.avitowfxbarrett.presentaion.pages.TermsOfPage
 import com.example.avitowfxbarrett.presentaion.pages.TermsOfPagePreview
+import com.example.avitowfxbarrett.presentaion.state.LoginIntent
+import com.example.avitowfxbarrett.presentaion.state.LoginState
 import com.example.avitowfxbarrett.ui.theme.AvitoWfxbarrettTheme
 import com.example.avitowfxbarrett.ui.theme.Purple40
 import com.example.avitowfxbarrett.viewModel.MainViewModel
 import com.example.avitowfxbarrett.viewModel.ProductsMainViewModel
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -103,6 +121,7 @@ class MainActivity : ComponentActivity() {
             AvitoWfxbarrettTheme {
                 val navController = rememberNavController()
                 var showBottomBar by remember { mutableStateOf(false) }
+                val MainViewModel: MainViewModel = viewModel()
                 var pageIsAdvertisment by remember { mutableStateOf(false) }
                 Scaffold(
                     bottomBar = {
@@ -183,6 +202,7 @@ class MainActivity : ComponentActivity() {
 
                 ) { innerPadding ->
                     NavHost(navController, startDestination = Routes.Login.route, Modifier.padding(innerPadding)) {
+
                         composable(Routes.Home.route) {
                             MainProducts(navController)
                             showBottomBar = true
@@ -199,7 +219,7 @@ class MainActivity : ComponentActivity() {
                             pageIsAdvertisment = false
                         }
                         composable(Routes.Login.route) {
-                            Login(navController)
+                            Login(navController,this@MainActivity, MainViewModel)
                             showBottomBar = false
                             pageIsAdvertisment = false
                         }
@@ -211,8 +231,10 @@ class MainActivity : ComponentActivity() {
                             val product = Gson().fromJson(productJson, ProductModels::class.java)
                             DetailProductPage(product)
                         }
+
                         composable(Routes.Profile.route) {
-                            ProfilePage(navController)
+
+                            ProfilePage(navController, MainViewModel)
                             showBottomBar = true
                             pageIsAdvertisment = false
                         }
@@ -291,10 +313,22 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("ResourceAsColor")
 @Composable
-fun Login(navController: NavHostController) {
-    val viewModel: MainViewModel = viewModel()
+fun Login(navController: NavHostController,context: Context,viewModel: MainViewModel) {
+    val state = viewModel.state.collectAsState().value
 
+    when(state){
+        is LoginState.Error -> ErrorView(state.message)
+        LoginState.Loading -> LoadingView()
+        is LoginState.Success -> LoginSuccess(navController,context,viewModel)
+        LoginState.Idle -> {
+            LoginSuccess(navController,context,viewModel)
+        }
+    }
 
+}
+
+@Composable
+fun LoginSuccess(navController: NavHostController,context: Context,viewModel: MainViewModel){
 
     Column(
         modifier = Modifier
@@ -307,25 +341,23 @@ fun Login(navController: NavHostController) {
         Text("Welcome to Back",
             color = Color.Black,
             fontSize = 20.sp
-            )
+        )
 
         TextField(
             value = viewModel.emailText,
-            onValueChange = { viewModel.emailText = it },
+            onValueChange = { viewModel.processIntent(LoginIntent.InputEmail(it),navController,context)},
             label = { Text("Write to your email") }
         )
 
         TextField(
             value = viewModel.passwordText,
-            onValueChange = { viewModel.passwordText = it },
+            onValueChange = { viewModel.processIntent(LoginIntent.InputPassword(it),navController,context) },
             label = { Text("Write to your password") }
         )
 
         Button(
             onClick = {
-                navController.navigate(Routes.Home.route){
-                    popUpTo(Routes.Login.route)
-                }
+               viewModel.processIntent(LoginIntent.ClickButtonLogin,navController,context)
             },
             modifier = Modifier.width(200.dp)
         ) {
@@ -334,12 +366,12 @@ fun Login(navController: NavHostController) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
 
-        ) {
+            ) {
             Text(
                 text = "Don't have account?",
                 color = Purple40,
                 modifier = Modifier.clickable(onClick = {
-                    navController.navigate(Routes.DontHaveAccount.route)
+                   viewModel.processIntent(LoginIntent.ClickButtonRegister,navController,context)
                 })
 
             )
@@ -347,9 +379,7 @@ fun Login(navController: NavHostController) {
                 text = "Forgot password?",
                 color = Purple40,
                 modifier = Modifier.clickable(onClick = {
-                    navController.navigate(Routes.ForgotPassword.route){
-                        popUpTo(Routes.Login.route)
-                    }
+                    viewModel.processIntent(LoginIntent.ClickButtonForgotPassword,navController,context)
                 })
 
             )
@@ -361,85 +391,4 @@ fun Login(navController: NavHostController) {
 }
 
 
-fun filterItems(items: List<ProductModels>, query: String): List<ProductModels> {
-    val lowerCaseQuery = query.lowercase()
-    return items.filter {
-        it.title.lowercase().contains(lowerCaseQuery)
-    }
-}
 
-@Composable
-fun MainProducts(navController: NavHostController) {
-    val viewModel : ProductsMainViewModel = viewModel()
-    val categories = remember { CategoryProvider.categoryList }
-    val products = remember { ProductProvider.productList }
-    val filteredItems = filterItems(products, viewModel.textSearch)
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(30.dp)
-
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextField(
-                value = viewModel.textSearch,
-                onValueChange = { viewModel.textSearch = it },
-                label = { Text("Поиск ") },
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp)),
-                maxLines = 1,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-
-
-                )
-            IconButton(
-                onClick = {}
-            ) {
-                Icon(Icons.Filled.Menu, contentDescription = "")
-            }
-        }
-        LazyRow(
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(
-                items = categories,
-                itemContent = {
-                    CategoryListItem(category = it)
-                }
-            )
-        }
-        Text(
-            text = "Рекомендации",
-            modifier = Modifier.padding(start = 10.dp),
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-
-
-        ) {
-            items(
-                items = filteredItems,
-                itemContent = {
-                    ProductListItem(product = it,navController)
-                }
-            )
-        }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview3() {
-    AvitoWfxbarrettTheme {
-        val navController = rememberNavController()
-        MainProducts(navController = navController)
-    }
-
-
-}

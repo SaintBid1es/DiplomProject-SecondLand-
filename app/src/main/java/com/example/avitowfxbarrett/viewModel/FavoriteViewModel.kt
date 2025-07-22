@@ -17,20 +17,10 @@ class FavoriteViewModel : ViewModel() {
     val state: StateFlow<FavoriteState> = _state
     val _favorites = mutableStateMapOf<Int, Boolean>()
 
-    //    fun changeFavorite(productModels: ProductModels){
-//
-//        _favorite[productModels.id] = !(_favorite[productModels.id] ?: productModels.isFavorite)
-//    }
     init {
         _state.value = FavoriteState.Success(ProductProvider.productList.filter { it.isFavorite })
     }
 
-    private fun loadFavorites() {
-
-        _state.value = FavoriteState.Success(
-            favorites = ProductProvider.productList.filter { it.isFavorite }
-        )
-    }
 
     fun isFavorite(productModels: ProductModels): Boolean {
         return _favorites[productModels.id] ?: productModels.isFavorite

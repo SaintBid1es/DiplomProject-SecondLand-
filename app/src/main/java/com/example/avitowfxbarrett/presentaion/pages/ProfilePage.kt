@@ -40,18 +40,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.example.avitowfxbarrett.R
 import com.example.avitowfxbarrett.Routes
+import com.example.avitowfxbarrett.data.model.User
 import com.example.avitowfxbarrett.ui.theme.BlueForCard
+import com.example.avitowfxbarrett.viewModel.MainViewModel
 
 @Composable
 fun ProfilePage(
-    navController : NavHostController
+    navController : NavHostController,
+    viewModel: MainViewModel
 ) {
-    val scrollState = rememberScrollState()
 
+    val scrollState = rememberScrollState()
+    val user = viewModel.currentUser
 
     Box(
         modifier = Modifier
@@ -106,9 +111,9 @@ fun ProfilePage(
                     .clip(RoundedCornerShape(32.dp))
             )
 
-            Text("Марк", fontSize = 20.sp)
-            Text("На Авито с 2023 года", fontSize = 16.sp)
-            Text("Номер профиля 321 654", fontSize = 16.sp)
+            Text(user!!.name, fontSize = 20.sp)
+            Text("На Авито с ${user.date.take(4)} года", fontSize = 16.sp)
+            Text("Номер профиля ${user.id}", fontSize = 16.sp)
 
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -137,7 +142,7 @@ fun ProfilePage(
 
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(10.dp)) {
-                    Text("0 P", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(user.balance.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Text("Avito кошелёк")
                 }
             }

@@ -1,6 +1,7 @@
 package com.example.avitowfxbarrett
 
 import com.example.avitowfxbarrett.data.model.ProductModels
+import com.example.avitowfxbarrett.data.model.User
 import com.google.gson.Gson
 
 sealed class Routes(val route: String) {
@@ -28,6 +29,9 @@ sealed class Routes(val route: String) {
     }
     object ProductDetailJSON : Routes("product_detail/{productJson}") {
         fun createRoute(product: ProductModels) = "product_detail/${Gson().toJson(product)}"
+    }
+    object UserJSON : Routes("user/{userJson}") {
+        fun createRoute(user: User) = "user/${Gson().toJson(user)}"
     }
 }
 

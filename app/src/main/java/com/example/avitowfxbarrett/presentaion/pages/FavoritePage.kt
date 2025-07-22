@@ -136,7 +136,7 @@ fun FavoritePagePreview() {
 }
 
 @Composable
-private fun LoadingView() {
+ fun LoadingView() {
     Box(
         modifier = Modifier.Companion.fillMaxSize(),
         contentAlignment = Alignment.Companion.Center
@@ -146,7 +146,7 @@ private fun LoadingView() {
 }
 
 @Composable
-private fun ErrorView(message: String) {
+ fun ErrorView(message: String) {
     Box(
         modifier = Modifier.Companion.fillMaxSize(),
         contentAlignment = Alignment.Companion.Center
